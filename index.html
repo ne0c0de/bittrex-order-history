@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Bittrex Order History</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row" style="margin: 20px;">
+        <div class="col">
+            <label for="bittrexKey">Bittrex Key</label>
+        </div>
+        <div class="col">
+            <input type="password" class="form-control" id="bittrexKey" value="">
+        </div>
+        <div class="col">
+            <label for="bittrexSecret">Bittrex Secret</label>
+        </div>
+        <div class="col">
+            <input type="password" class="form-control" id="bittrexSecret" value="">
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-primary">Get Order History</button>
+        </div>
+      </div>
+      <div class="row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Exchange</th>
+              <th scope="col">TimeStamp</th>
+              <th scope="col">OrderType</th>
+              <th scope="col">Limit</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Commission</th>
+              <th scope="col">Price</th>
+              <th scope="col">PricePerUnit</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+
+    <script>
+      var bittrex = require("api-bittrex");
+        $(".btn").click(function(){
+          if (!$("#bittrexKey").val().length){
+            alert("Please enter API Key");
+          } else if (!$("#bittrexSecret").val().length){
+            alert("Please enter API Secret");
+          } else {
+            $.blockUI();
+            bittrex.options({ 
+               'apikey' : $("#bittrexKey").val(), 
+               'apisecret' : $("#bittrexSecret").val(), 
+               'stream' : false, 
+               'verbose' : false, 
+               'cleartext' : false 
+            });
+
+            bittrex.getorderhistory( {}, function( data, err ) {
+              if (err){
+                console.log(err);
+                alert('error occurred:' + JSON.stringify(err));
+              } else {
+                console.log( data );
+                $("tbody").html("");
+                data.result.forEach(function(d){
+                  $("tbody").append('<tr><td>' + d.Exchange + '</td>' +
+                    '<td>' + d.TimeStamp + '</td>' +
+                    '<td>' + d.OrderType + '</td>' +
+                    '<td>' + d.Limit + '</td>' +
+                    '<td>' + d.Quantity + '</td>' +
+                    '<td>' + d.Commission + '</td>' +
+                    '<td>' + d.Price + '</td>' +
+                    '<td>' + d.PricePerUnit + '</td></tr>');
+                });
+              }
+              $.unblockUI();
+            });
+          }
+        });
+    </script>
+  </body>
+</html>
